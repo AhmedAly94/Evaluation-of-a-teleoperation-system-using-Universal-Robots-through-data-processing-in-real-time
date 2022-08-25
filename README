@@ -1,4 +1,69 @@
-Real-Time Data Exchange (RTDE) python client + examples
+RTDE interface is used to establish a connection between the universal robot and
+external application. It provides a way for synchronization over a standard TCP/IP
+connection. One of its advantages is that it allows manipulating with robot inputs and
+outputs such that data can be sent to the UR controller and received to the application
+to plot robot status such as position, velocity, force and torque. As long as the UR
+controller is running the RTDE interface is available by default.
 
-rtde - main RTDE library
-examples - Examples showing basic use cases for the RTDE
+The Universal robot is controlled through the TCP/IP interface using a python application.
+TCP/IP is a series of network protocols that are used to communicate between
+computers through a network. Data is sent in small packages independently. TCP
+service called sockets is obtained by both the sender and the receiver. Each socket has
+an address which is the socket number. It consists of the host’s IP address and a 16-bit
+number called a port which is only local to that host. if communication between a
+socket on the sending machine and a socket on the receiving machine is established
+the TCP service is obtained. The RTDE is connected through port number 30004 with a
+maximum frequency of 500HZ.
+
+The universal robot can be controlled at two levels:
+• The polyscope which is the graphical user interface
+• Script level
+
+Each robot is operated by an individual UR control box that powers the robot. UR
+script is mandatory to be implemented on the UR controller for the RTDE interface
+to control the robot. The robot must be controlled at a frequency of 125Hz, every 8
+milliseconds the robot must be told what to do. Therefore synchronizing the timer
+between the python code and the UR script is crucial to send and receive data at the
+correct time. The UR controller has a thread to achieve this such that each thread is
+given a time slice of 0.0008 seconds (frame). All threads are scheduled in round-robin
+fashion in which when a thread uses up the entire slice of 8ms, it is not allowed to run
+until the next frame starts The UR script contains variables, types and flows control
+statements. Furthermore, there are built-in functions and variables to monitor and
+control the robot’s movements.
+At the beginning of the project as a first step, the RTDE communication protocol is
+established to ensure that the application can send and receive data from the Universal
+robot. For this thesis, python is used as it is a worldwide used language and it is
+compatible with a lot of platforms and UR libraries. The UR can send a position to reach
+to mimic pronation movement. To achieve that input registers have to be set from the
+client which is the python application in this case then a UR script is written to send
+a specific position to control the movement of the robot. Furthermore, velocity and
+acceleration can be altered by sending them to registers in the UR script.
+
+
+The Universal robot can move to any point specified in the program however the challenge
+comes in making the trajectory such that the robot follows a smooth path mimicking
+the movement of the hand in the wrist rehabilitation system as shown in the
+picture above 5a. The trajectory aim is tomake the robot move in a curved path and to
+do pronation and supination movement. A trajectory means the way to reach the target
+position. The implementation should be handled in both the UR script and the python
+application. The motion of the robot has to be as smooth and slow as possible such
+that the master universal robot can mimic the exact motion of the doctor. The robot
+orientation is the most important thing to take into consideration when making the
+trajectory. In the universal robot the orientation is described by a TCP pose. The TCP position is the location of the tool center point in linear space and the TCP orientation
+indicates the directions of X,Y,Z axes in the tool coordinate system. In UR robots the
+TCP’s position and orientation coordinates are to the base coordinate system located
+with origin in the robot’s base center.
+
+To ensure that the data is precise during the motion, an external force-torque sensor is
+used to measure the force and torque throughout the robot’s motion. To achieve that,
+the timer between the UR script and the application has to be synchronized to capture
+the correct data at the correct time. A timer has been implemented in the UR script to
+count the time of the wholemotion during the curved path. Also, timer of UR script has
+to be synchronized with the timer of the application to capture the displacement data
+in real-time. Data readings from the external sensor such as forces, torques in x and y
+directions have been recorded and exported to a CSV file. Plots have been exported at
+the end of the code to show the expected output.
+Data analysis is implemented such that the timer in the python application is synchronized
+with the timer in the UR script to capture the data at its corresponding time. Plots
+are exported at the end of the programto check the sensors data in real-time throughout
+the wrist rehabilitation system motion.
